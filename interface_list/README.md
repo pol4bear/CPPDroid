@@ -5,10 +5,10 @@
 1. Makefile 생성
 
    ```bash
-   cd libpcap
    # 프로파일 로드
-   source ./aarch64.profile
-   # configure 스크립트 생성
+   source ../toolchain/profile/aarch64.profile
+   # configure 스크립트 생성(없을시)
+   cd libpcap
    autoconf
    # --prefix : 빌드 결과물 경로
    # --host : 라이브러리를 실행할 호스트
@@ -36,10 +36,10 @@
 
    ```bash
    # 정적 라이브러리 사용
-   cmake -DCMAKE_TOOLCHAIN_FILE=aarch64.cmake
+   cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain/cmake/aarch64.cmake
    
    # 공유 라이브러리 사용
-   cmake -DCMAKE_TOOLCHAIN_FILE=aarch64.cmake -DUSE_SHARED=1
+   cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain/cmake/aarch64.cmake -DUSE_SHARED=1
    ```
 
 2. 바이너리 빌드
