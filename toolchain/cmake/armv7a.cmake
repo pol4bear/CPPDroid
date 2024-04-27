@@ -1,0 +1,3 @@
+SET(ANDROID_ABI armeabi-v7a)
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/default.cmake)
+

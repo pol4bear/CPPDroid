@@ -1,0 +1,3 @@
+SET(ANDROID_ABI arm64-v8a)
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/default.cmake)
+
