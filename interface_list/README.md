@@ -37,7 +37,7 @@
    ```bash
    # 정적 라이브러리 사용
    cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain/cmake/aarch64.cmake
-   
+
    # 공유 라이브러리 사용
    cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain/cmake/aarch64.cmake -DUSE_SHARED=1
    ```

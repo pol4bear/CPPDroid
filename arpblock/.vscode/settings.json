@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "pcap.h": "c",
+    "inet.h": "c"
+  }
+}
