@@ -25,6 +25,7 @@ CTestTestfile.cmake
 _deps
 
 bin/
+build/
 include/
 lib/
 share/

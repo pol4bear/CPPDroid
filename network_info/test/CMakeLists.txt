@@ -1,0 +1,18 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+PROJECT(network_info_test)
+
+
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
+IF((DEFINED CXX) OR (DEFINED CMAKE_TOOLCHAIN_FILE))
+  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/../include)
+  LINK_DIRECTORIES(${CMAKE_SOURCE_DIR}/../lib)
+ENDIF()
+
+SET(BASE_SOURCES ../pnetinfo.cpp)
+
+ADD_EXECUTABLE(test_mac ${BASE_SOURCES} test_mac.cpp)
+TARGET_LINK_LIBRARIES(test_mac gtest gtest_main)
+ADD_EXECUTABLE(test_ipv4 ${BASE_SOURCES} test_ipv4.cpp)
+TARGET_LINK_LIBRARIES(test_ipv4 gtest gtest_main)
+ADD_EXECUTABLE(test_cidr ${BASE_SOURCES} test_cidr.cpp)
+TARGET_LINK_LIBRARIES(test_cidr gtest gtest_main)
