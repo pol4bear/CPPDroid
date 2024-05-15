@@ -1,6 +1,7 @@
 #include "l2/mac.h"
 #include <algorithm>
 #include <stdexcept>
+#include <sstream>
 #include <memory.h>
 #include <iomanip>
 

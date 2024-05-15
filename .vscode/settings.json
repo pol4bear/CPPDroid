@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "stdexcept": "cpp"
+  },
+  "cmake.sourceDirectory": "/home/pol4bear/Workspace/Research/Android/Projects/CPPDroid/network_info"
+}
