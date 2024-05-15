@@ -6,7 +6,7 @@ namespace pol4b {
 
   class RouteInfo {
   public:
-    RouteInfo() {}
+    RouteInfo() = default;
     std::string name = "";
     IPv4Addr gateway;
     IPv4Addr destination;

@@ -2,26 +2,25 @@
 #include <memory.h>
 #include <stdexcept>
 #include <sstream>
+#include <arpa/inet.h>
 
 using namespace std;
 
 namespace pol4b {
 
 IPv4Addr::IPv4Addr() {
-  memset(this->data, 0, sizeof(this->data));
+  memset(data, 0, sizeof(data));
 }
 
 IPv4Addr::IPv4Addr(uint32_t addr) {
-  this->data[0] = (addr >> 24) & 0xFF;
-  this->data[1] = (addr >> 16) & 0xFF;
-  this->data[2] = (addr >> 8) & 0xFF;
-  this->data[3] = addr & 0xFF;
+  *(uint32_t*)data = addr;
 }
 
 IPv4Addr::IPv4Addr(const char *addr) {
   if (addr == nullptr)
     return;
   int addr_len = strlen(addr);
+  uint32_t tmp = 0;
   if (addr_len < 7 || addr_len > 15)
     throw invalid_argument("Address length must be between 7 and 15 characters.");
   char *tmp_addr = strdup(addr);
@@ -33,24 +32,36 @@ IPv4Addr::IPv4Addr(const char *addr) {
     int num = atoi(token);
     if (num < 0 || num > 255)
       throw invalid_argument("Address must be between 0.0.0.0 and 255.255.255.255.");
-    this->data[token_count++] = num;
+    tmp <<= 8;
+    tmp |= num;
+    token_count++;
     token = strtok(nullptr, ".");
   }
   free(tmp_addr);
   if (token_count != 4)
     throw invalid_argument("Invalid IP address.");
+  *(uint32_t*)data = tmp;
 }
 
 IPv4Addr::operator std::string() const {
+  uint32_t *addr = (uint32_t*)data;
   stringstream result;
-  result << (int)this->data[0] << "." << (int)this->data[1] << "." <<
-    (int)this->data[2] << "." << (int)this->data[3];
+  result << ((*addr >> 24) & 0xFF) << "." << ((*addr >> 16) & 0xFF) << "." <<
+    ((*addr >> 8) & 0xFF) << "." << (*addr & 0xFF);
   return result.str();
 }
 
 IPv4Addr::operator uint32_t() const {
-  uint32_t result = this->data[0] << 24 | this->data[1] << 16 | this->data[2] << 8 | this->data[3];
-  return result;
+  return *(uint32_t*)data;
+}
+
+void IPv4Addr::copy(uint8_t *dest, bool network) const {
+  if (dest == nullptr)
+    return;
+  uint32_t value = *this;
+  if (network)
+    value = htonl(value);
+  *(uint32_t*)dest = value;
 }
 
 };

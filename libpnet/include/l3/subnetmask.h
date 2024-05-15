@@ -4,6 +4,7 @@
 
 namespace pol4b {
 
+#pragma pack(push, 1)
 class SubnetMask : public IPv4Addr {
   public:
     SubnetMask();
@@ -12,5 +13,6 @@ class SubnetMask : public IPv4Addr {
     static SubnetMask from_cidr(int cidr);
     int to_cidr() const;
 };
+#pragma pack(pop)
 
 };

@@ -5,6 +5,7 @@
 
 namespace pol4b {
 
+#pragma pack(push, 1)
 class IPv4Addr {
   public:
     uint8_t data[4];
@@ -13,6 +14,8 @@ class IPv4Addr {
     IPv4Addr(const char *addr);
     operator std::string() const;
     operator uint32_t() const;
+    void copy(uint8_t *dest, bool network=false) const;
 };
+#pragma pack(pop)
 
 };

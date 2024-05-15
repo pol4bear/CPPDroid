@@ -1,14 +1,15 @@
 #pragma once
 
-#include "l2/l2.h"
-#include "l3/l3.h"
+#include "l2/mac.h"
+#include "l3/ipv4.h"
+#include "l3/subnetmask.h"
 #include <vector>
 
 namespace pol4b {
 
 class NetInfo {
 public:
-  NetInfo() {};
+  NetInfo() = default;
   MACAddr mac;
   IPv4Addr ip;
   SubnetMask mask;

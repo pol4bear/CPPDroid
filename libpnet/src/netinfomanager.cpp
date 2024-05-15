@@ -63,10 +63,14 @@ void NetInfoManager::load_netinfo() {
         rtattr *attr = (rtattr *) IFLA_RTA(iface);
         int length = nh->nlmsg_len - NLMSG_LENGTH(sizeof(*iface));
         for (; RTA_OK(attr, length); attr = RTA_NEXT(attr, length)) {
-            if (attr->rta_type == IFLA_IFNAME)
-              interface_name[iface->ifi_index] = (char*)RTA_DATA(attr);
-            else if (attr->rta_type == IFLA_ADDRESS)
+            if (attr->rta_type == IFLA_IFNAME) {
+              auto if_name = (char*)RTA_DATA(attr);
+              interface_name[iface->ifi_index] = if_name;
+              interface_index[if_name] = iface->ifi_index;
+            }
+            else if (attr->rta_type == IFLA_ADDRESS) {
               interface_map[iface->ifi_index].mac = MACAddr((uint8_t*)RTA_DATA(attr), 6);
+            }
         }
       }
     }
@@ -82,7 +86,7 @@ void NetInfoManager::load_netinfo() {
         int ifa_len = IFA_PAYLOAD(nh);
         for (; RTA_OK(attr, ifa_len); attr = RTA_NEXT(attr, ifa_len)) {
           if (attr->rta_type == IFA_LOCAL) {
-            memcpy(interface_map[ifa->ifa_index].ip.data, RTA_DATA(attr), sizeof(uint32_t));
+            interface_map[ifa->ifa_index].ip = IPv4Addr(ntohl(*(uint32_t*)RTA_DATA(attr)));
             break;
           }
         }
@@ -151,21 +155,33 @@ void NetInfoManager::load_routeinfo() {
   }
 }
 
-const unordered_map<string, NetInfo> &NetInfoManager::get_netinfo(bool reload) {
+const unordered_map<string, NetInfo> &NetInfoManager::get_all_netinfo(bool reload) {
   if (reload || interfaces.size() < 1)
     load_netinfo();
   return interfaces;
 }
 
-const vector<RouteInfo> &NetInfoManager::get_routeinfo(bool reload) {
+const vector<RouteInfo> &NetInfoManager::get_all_routeinfo(bool reload) {
   if (reload || routes.size() < 1)
     load_routeinfo();
   return routes;
 }
 
-const RouteInfo &NetInfoManager::get_best_routeinfo(IPv4Addr destination) {
+const NetInfo *NetInfoManager::get_netinfo(string name) {
+  if (interfaces.size() < 1)
+    load_netinfo();
+  auto netinfo = interfaces.find(name);
+  if (netinfo == interfaces.end())
+    return nullptr;
+  return &netinfo->second;
+}
+
+const RouteInfo *NetInfoManager::get_best_routeinfo(IPv4Addr destination) {
   const RouteInfo *best_route = nullptr;
   int longest_prefix = -1;
+
+  if (routes.size() < 1)
+    load_routeinfo();
 
   for (auto &route : routes) {
     if ((destination & route.mask) == route.destination) {
@@ -178,7 +194,25 @@ const RouteInfo &NetInfoManager::get_best_routeinfo(IPv4Addr destination) {
     }
   }
 
-  return *best_route;
+  return best_route;
+}
+
+string NetInfoManager::get_interface_name(int index) {
+  if (interface_name.size() < 1)
+    load_netinfo();
+  auto name = interface_name.find(index);
+  if (name == interface_name.end())
+    return "";
+  return name->second;
+}
+
+int NetInfoManager::get_interface_index(std::string name) {
+  if (interface_index.size() < 1)
+    load_netinfo();
+  auto index = interface_index.find(name);
+  if (index == interface_index.end())
+    return -1;
+  return index->second;
 }
 
 };
