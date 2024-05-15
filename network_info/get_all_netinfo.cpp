@@ -1,4 +1,4 @@
-#include "pnetinfo.h"
+#include "netinfomanager.h"
 #include <iostream>
 
 using namespace std;

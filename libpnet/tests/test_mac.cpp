@@ -1,4 +1,4 @@
-#include "pnetinfo.h"
+#include "l2/mac.h"
 #include <gtest/gtest.h>
 
 using namespace std;
