@@ -23,5 +23,6 @@ int main() {
   auto &best_route = NetInfoManager::instance().get_best_routeinfo();
   cout << best_route.name << " : " << (string)best_route.destination << "/" << best_route.mask.to_cidr() << ", " <<
     (string)best_route.gateway << ", " << (uint32_t)best_route.metric << endl;
+
   return 0;
 }
