@@ -170,7 +170,8 @@ const RouteInfo &NetInfoManager::get_best_routeinfo(IPv4Addr destination) {
   for (auto &route : routes) {
     if ((destination & route.mask) == route.destination) {
       int prefix_len = __builtin_popcount(route.mask);
-      if (prefix_len > longest_prefix || (prefix_len == longest_prefix && route.metric < best_route->metric)) {
+      if (prefix_len > longest_prefix || (prefix_len == longest_prefix &&
+        (route.metric < best_route->metric || (route.metric == best_route->metric && best_route->gateway == 0)))) {
         longest_prefix = prefix_len;
         best_route = &route;
       }
