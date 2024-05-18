@@ -1,5 +1,6 @@
 #include "l3/ipv4.h"
 #include <gtest/gtest.h>
+#include <arpa/inet.h>
 
 using namespace std;
 using namespace pol4b;
@@ -15,5 +16,8 @@ TEST(IPv4Test, BasicAssertions) {
   IPv4Addr a = "192.168.0.1";
   IPv4Addr b;
   a.copy((uint8_t*)&b, true);
-  ASSERT_EQ((string)b, "1.0.168.192");
+  if (htonl(1) == 1)
+    ASSERT_EQ((string)b, "192.168.0.1");
+  else
+    ASSERT_EQ((string)b, "1.0.168.192");
 }

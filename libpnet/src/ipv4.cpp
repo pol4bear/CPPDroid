@@ -9,11 +9,13 @@ using namespace std;
 namespace pol4b {
 
 IPv4Addr::IPv4Addr() {
-  memset(data, 0, sizeof(data));
+  memset(&data, 0, sizeof(data));
 }
 
-IPv4Addr::IPv4Addr(uint32_t addr) {
-  *(uint32_t*)data = addr;
+IPv4Addr::IPv4Addr(uint32_t addr, bool is_network) {
+  data = addr;
+  if (is_network)
+    to_host_byte_order();
 }
 
 IPv4Addr::IPv4Addr(const char *addr) {
@@ -40,7 +42,7 @@ IPv4Addr::IPv4Addr(const char *addr) {
   free(tmp_addr);
   if (token_count != 4)
     throw invalid_argument("Invalid IP address.");
-  *(uint32_t*)data = tmp;
+  data = tmp;
 }
 
 IPv4Addr::operator std::string() const {
@@ -51,15 +53,15 @@ IPv4Addr::operator std::string() const {
 }
 
 IPv4Addr::operator uint32_t() const {
-  return *(uint32_t*)data;
+  return data;
 }
 
 uint8_t IPv4Addr::operator[](int index) const {
-  uint32_t *addr = (uint32_t*)data;
-  return (*addr >> (24 - index * 8)) & 0xFF;
+  if (index < 0 || index > 3)
+    return 0;
+  return (data >> (24 - index * 8)) & 0xFF;
 }
-void IPv4Addr::copy(uint8_t *dest, bool network) const
-{
+void IPv4Addr::copy(uint8_t *dest, bool network) const {
   if (dest == nullptr)
     return;
   uint32_t value = *this;
@@ -69,8 +71,7 @@ void IPv4Addr::copy(uint8_t *dest, bool network) const
 }
 
 void IPv4Addr::to_host_byte_order() {
-  uint32_t *addr = (uint32_t*)data;
-  *addr = ntohl(*addr);
+  data = ntohl(data);
 };
 
 }

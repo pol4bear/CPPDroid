@@ -114,10 +114,6 @@ NetInfo ARP::get_gateway_info(IPv4Addr ip_addr) {
   auto route_info = NetInfoManager::instance().get_best_routeinfo(ip_addr);
   if (route_info == nullptr)
     throw invalid_argument("Failed to get route to the IP address.");
-  else if((uint32_t)route_info->gateway == 0x0)
-    route_info = NetInfoManager::instance().get_default_routeinfo();
-  if (route_info == nullptr)
-    throw invalid_argument("Failed to get route to the IP address.");
   auto if_info = NetInfoManager::instance().get_netinfo(route_info->name);
   if (if_info == nullptr)
     throw runtime_error("Failed to get interface information.");

@@ -59,6 +59,8 @@ MACAddr::operator uint64_t() const {
 }
 
  uint8_t MACAddr::operator[](int index) const {
+  if (index < 0 || index > 5)
+    return 0;
   uint64_t *addr = (uint64_t*)data;
   return  (*addr >> (40 - index * 8)) & 0xFF;
 }

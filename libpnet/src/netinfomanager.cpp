@@ -194,6 +194,12 @@ const RouteInfo *NetInfoManager::get_best_routeinfo(IPv4Addr destination) {
     }
   }
 
+  if (best_route == nullptr || best_route->gateway == 0) {
+    const RouteInfo *default_route = get_default_routeinfo();
+    if (default_route)
+      best_route = default_route;
+  }
+
   return best_route;
 }
 

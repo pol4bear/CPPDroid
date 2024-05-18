@@ -1,5 +1,6 @@
 #include "l2/mac.h"
 #include <gtest/gtest.h>
+#include <arpa/inet.h>
 
 using namespace std;
 using namespace pol4b;
@@ -17,5 +18,8 @@ TEST(MACTest, BasicAssertions) {
   MACAddr a = "AA:BB:CC:DD:EE:FF";
   MACAddr b;
   a.copy((uint8_t*)&b, true);
-  ASSERT_EQ((string)b, "FF:EE:DD:CC:BB:AA");
+  if (htonl(1) == 1)
+    ASSERT_EQ((string)b, "AA:BB:CC:DD:EE:FF");
+  else
+    ASSERT_EQ((string)b, "FF:EE:DD:CC:BB:AA");
 }
