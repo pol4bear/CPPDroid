@@ -44,10 +44,9 @@ IPv4Addr::IPv4Addr(const char *addr) {
 }
 
 IPv4Addr::operator std::string() const {
-  uint32_t *addr = (uint32_t*)data;
   stringstream result;
-  result << ((*addr >> 24) & 0xFF) << "." << ((*addr >> 16) & 0xFF) << "." <<
-    ((*addr >> 8) & 0xFF) << "." << (*addr & 0xFF);
+  result << (uint32_t)(*this)[0] << "." << (uint32_t)(*this)[1] << "." <<
+    (uint32_t)(*this)[2] << "." << (uint32_t)(*this)[3];
   return result.str();
 }
 
@@ -55,7 +54,12 @@ IPv4Addr::operator uint32_t() const {
   return *(uint32_t*)data;
 }
 
-void IPv4Addr::copy(uint8_t *dest, bool network) const {
+uint8_t IPv4Addr::operator[](int index) const {
+  uint32_t *addr = (uint32_t*)data;
+  return (*addr >> (24 - index * 8)) & 0xFF;
+}
+void IPv4Addr::copy(uint8_t *dest, bool network) const
+{
   if (dest == nullptr)
     return;
   uint32_t value = *this;
@@ -64,4 +68,9 @@ void IPv4Addr::copy(uint8_t *dest, bool network) const {
   *(uint32_t*)dest = value;
 }
 
+void IPv4Addr::to_host_byte_order() {
+  uint32_t *addr = (uint32_t*)data;
+  *addr = ntohl(*addr);
 };
+
+}

@@ -14,7 +14,10 @@ class IPv4Addr {
     IPv4Addr(const char *addr);
     operator std::string() const;
     operator uint32_t() const;
+    uint8_t operator[](int index) const;
     void copy(uint8_t *dest, bool network=false) const;
+    void to_host_byte_order();
+
 };
 #pragma pack(pop)
 

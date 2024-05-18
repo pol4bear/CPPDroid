@@ -69,7 +69,7 @@ void NetInfoManager::load_netinfo() {
               interface_index[if_name] = iface->ifi_index;
             }
             else if (attr->rta_type == IFLA_ADDRESS) {
-              interface_map[iface->ifi_index].mac = MACAddr((uint8_t*)RTA_DATA(attr), 6);
+              interface_map[iface->ifi_index].mac = MACAddr((uint8_t*)RTA_DATA(attr), 6, true);
             }
         }
       }
@@ -195,6 +195,15 @@ const RouteInfo *NetInfoManager::get_best_routeinfo(IPv4Addr destination) {
   }
 
   return best_route;
+}
+
+const RouteInfo *NetInfoManager::get_default_routeinfo() {
+  const RouteInfo *default_route = nullptr;
+  for (auto &route : routes) {
+    if ((uint32_t)route.destination == 0 && (uint32_t)route.mask == 0)
+      default_route = &route;
+  }
+  return default_route;
 }
 
 string NetInfoManager::get_interface_name(int index) {

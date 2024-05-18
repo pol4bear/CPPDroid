@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "name": "WSL: g++ - Build and debug active file",
+          "type": "cppdbg",
+          "request": "launch",
+          "program": "${workspaceFolder}/bin/arpblock",
+          "args": [],
+          "stopAtEntry": false,
+          "cwd": "${workspaceFolder}",
+          "environment": [],
+          "externalConsole": false,
+          "linux": {
+              "MIMode": "gdb",
+              "miDebuggerPath": "/usr/bin/gdb",
+              "setupCommands": [
+                  {
+                      "description": "Enable pretty-printing for gdb",
+                      "text": "-enable-pretty-printing",
+                      "ignoreFailures": true
+                  }
+              ],
+              "preLaunchTask": "build",
+              "postDebugTask": "rootRun"
+          },
+          "pipeTransport": {
+              "pipeCwd": "${workspaceFolder}",
+              "pipeProgram": "sudo",
+              "pipeArgs": ["-S"],
+              "debuggerPath": "/usr/bin/gdb",
+              "pipeEnv": {}
+          },
+          "sourceFileMap": {
+              "/mnt/c": "C:\\"
+          }
+      }
+  ]
+}

@@ -29,6 +29,7 @@ public:
   const std::vector<RouteInfo> &get_all_routeinfo(bool reload=false);
   const NetInfo *get_netinfo(std::string name);
   const RouteInfo *get_best_routeinfo(IPv4Addr destination="8.8.8.8");
+  const RouteInfo *get_default_routeinfo();
   std::string get_interface_name(int index);
   int get_interface_index(std::string name);
 };

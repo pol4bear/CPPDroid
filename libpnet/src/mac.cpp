@@ -4,37 +4,30 @@
 #include <sstream>
 #include <memory.h>
 #include <iomanip>
+#include <arpa/inet.h>
 
 using namespace std;
 
 namespace pol4b {
 
-void MACAddr::init(uint64_t addr) {
-  data[0] = (addr >> 40) & 0xFF;
-  data[1] = (addr >> 32) & 0xFF;
-  data[2] = (addr >> 24) & 0xFF;
-  data[3] = (addr >> 16) & 0xFF;
-  data[4] = (addr >> 8) & 0xFF;
-  data[5] = addr & 0xFF;
+void MACAddr::init(uint8_t *addr, size_t len) {
+  if (len != 6)
+    throw invalid_argument("Invalid MAC address");
+  memcpy(data, addr, 6);
 }
 
 MACAddr::MACAddr() {
   memset(data, 0, sizeof(data));
 }
 
-MACAddr::MACAddr(uint8_t * addr, size_t len) {
-  if (len != 6)
-    throw invalid_argument("Invalid MAC address");
-  data[0] = addr[0];
-  data[1] = addr[1];
-  data[2] = addr[2];
-  data[3] = addr[3];
-  data[4] = addr[4];
-  data[5] = addr[5];
+MACAddr::MACAddr(uint8_t *addr, size_t len, bool is_network) {
+  init(addr, len);
+  if (is_network)
+    to_host_byte_order();
 }
 
 MACAddr::MACAddr(uint64_t addr) {
-  init(addr);
+  init((uint8_t*)&addr, 6);
 }
 
 MACAddr::MACAddr(const char *addr) {
@@ -48,41 +41,45 @@ MACAddr::MACAddr(const char *addr) {
   uint64_t converted = stoul(tmp_addr, &pos, 16);
   if (pos != 12)
     throw invalid_argument("Invalid MAC address.");
-  init(converted);
+  init((uint8_t*)&converted, 6);
 }
 
 MACAddr::operator std::string() const {
   stringstream result;
   for (int i = 0; i < 5; i++)
-    result << hex << uppercase << setw(2) << setfill('0') << static_cast<unsigned>(data[i]) << ":";
-  result << hex << uppercase << setw(2) << setfill('0') << static_cast<unsigned>(data[5]);
+    result << hex << uppercase << setw(2) << setfill('0') << (uint32_t)(*this)[i] << ":";
+  result << hex << uppercase << setw(2) << setfill('0') << (uint32_t)(*this)[5];
   return result.str();
 }
 
 MACAddr::operator uint64_t() const {
-  uint64_t result = (uint64_t)data[0] << 40 | (uint64_t)data[1] << 32 | (uint64_t)data[2] << 24 |
-    (uint64_t)data[3] << 16 | (uint64_t)data[4] << 8 | (uint64_t)data[5];
+  uint64_t result = 0;
+  memcpy(&result, data, 6);
   return result;
+}
+
+ uint8_t MACAddr::operator[](int index) const {
+  uint64_t *addr = (uint64_t*)data;
+  return  (*addr >> (40 - index * 8)) & 0xFF;
 }
 
 void MACAddr::copy(uint8_t *dest, bool network) const {
   if (dest == nullptr)
     return;
-  if (network) {
-    dest[0] = data[5];
-    dest[1] = data[4];
-    dest[2] = data[3];
-    dest[3] = data[2];
-    dest[4] = data[1];
-    dest[5] = data[0];
-  }
-  else {
-    dest[0] = data[0];
-    dest[1] = data[1];
-    dest[2] = data[2];
-    dest[3] = data[3];
-    dest[4] = data[4];
-    dest[5] = data[5];
-  }
+  uint64_t addr = 0;
+  memcpy(&addr, data, 6);
+  if (network)
+    addr = htobe64(addr) >> 16;
+  memcpy(dest, &addr, 6);
 }
+
+void MACAddr::to_host_byte_order() {
+  if (htonl(1) != 1) {
+    uint8_t addr[6];
+    for (int i = 0; i < 6; i++)
+      addr[i] = data[5 - i];
+    memcpy(data, addr, 6);
+  }
 };
+
+}

@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+          "label": "build",
+          "type": "shell",
+          "command": "g++",
+          "args": [
+              "-g",
+              "${file}",
+              "${workspaceFolder}/../libpnet/src/*.cpp",
+              "-o",
+              "${fileDirname}/${fileBasenameNoExtension}",
+              "-I",
+              "${workspaceFolder}/../libpnet/include",
+          ],
+          "group": {
+              "kind": "build",
+              "isDefault": true
+          },
+          "problemMatcher": ["$gcc"],
+          "detail": "Generated task by Debugger."
+      },
+      {
+          "label": "rootRun",
+          "type": "shell",
+          "command": "sudo",
+          "args": [
+              "${workspaceFolder}/bin/arpblock"
+          ]
+      }
+    ]
+}
