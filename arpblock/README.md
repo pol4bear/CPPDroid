@@ -12,5 +12,5 @@
 2. 실행
 
    ```bash
-   ./arpblock <Target IP> [Fake IP]
+   ./arpblock <Target IP>
    ```
