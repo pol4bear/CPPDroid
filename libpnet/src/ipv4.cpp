@@ -64,14 +64,17 @@ uint8_t IPv4Addr::operator[](int index) const {
 void IPv4Addr::copy(uint8_t *dest, bool network) const {
   if (dest == nullptr)
     return;
-  uint32_t value = *this;
+  memcpy(dest, this, sizeof(IPv4Addr));
   if (network)
-    value = htonl(value);
-  *(uint32_t*)dest = value;
+    ((IPv4Addr*)dest)->to_network_byte_order();
 }
 
 void IPv4Addr::to_host_byte_order() {
   data = ntohl(data);
 };
+
+void IPv4Addr::to_network_byte_order() {
+  data = htonl(data);
+}
 
 }

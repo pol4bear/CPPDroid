@@ -16,6 +16,7 @@ class IPv4Addr {
     uint8_t operator[](int index) const;
     void copy(uint8_t *dest, bool network=false) const;
     void to_host_byte_order();
+    void to_network_byte_order();
   private:
     uint32_t data;
 };

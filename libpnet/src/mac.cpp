@@ -68,11 +68,10 @@ MACAddr::operator uint64_t() const {
 void MACAddr::copy(uint8_t *dest, bool network) const {
   if (dest == nullptr)
     return;
-  uint64_t addr = 0;
-  memcpy(&addr, data, 6);
+  memcpy(dest, this, sizeof(MACAddr));
   if (network)
-    addr = htobe64(addr) >> 16;
-  memcpy(dest, &addr, 6);
+    ((MACAddr*)dest)->to_network_byte_order();
+
 }
 
 void MACAddr::to_host_byte_order() {
@@ -83,5 +82,12 @@ void MACAddr::to_host_byte_order() {
     memcpy(data, addr, 6);
   }
 };
+
+void MACAddr::to_network_byte_order() {
+  uint64_t addr = 0;
+  memcpy(&addr, data, 6);
+  addr = htobe64(addr) >> 16;
+  memcpy(data, &addr, 6);
+}
 
 }
