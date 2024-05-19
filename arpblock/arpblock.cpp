@@ -45,11 +45,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   MACAddr target_mac = ARP::get_mac_addr(target_ip);
-  IPv4Addr fake_ip;
-  if (argc > 2)
-    fake_ip = argv[2];
-  else
-    fake_ip = ARP::get_gateway_info(target_ip).ip;
+  IPv4Addr fake_ip = ARP::get_gateway_info(target_ip).ip;
 
   int sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
   if (sock < 0) {
