@@ -3,7 +3,6 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <linux/netlink.h>
-#include <linux/rtnetlink.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -19,20 +18,21 @@ namespace pol4b {
 NetInfoManager::NetInfoManager() {}
 NetInfoManager::~NetInfoManager() {}
 
-int NetInfoManager::send_netlink_request(int sock, int type, int flags) {
-  struct {
-      nlmsghdr nlh;
-      rtgenmsg genmsg;
-  } request;
+int NetInfoManager::send_netlink_request(int sock, int type, uint8_t table, int flags) {
+    struct {
+        nlmsghdr nlh;
+        rtmsg rtm;
+    } request;
 
-  memset(&request, 0, sizeof(request));
-  request.nlh.nlmsg_len = sizeof(request);
-  request.nlh.nlmsg_type = type;
-  request.nlh.nlmsg_flags = NLM_F_REQUEST | flags;
-  request.nlh.nlmsg_seq = 1;
-  request.genmsg.rtgen_family = AF_INET;
+    memset(&request, 0, sizeof(request));
+    request.nlh.nlmsg_len = sizeof(request);
+    request.nlh.nlmsg_type = type;
+    request.nlh.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP | flags;
+    request.nlh.nlmsg_seq = 1;
+    request.rtm.rtm_family = AF_INET;
+    request.rtm.rtm_table = table;
 
-  return send(sock, &request, sizeof(request), 0);
+    return send(sock, &request, sizeof(request), 0);
 }
 
 NetInfoManager &NetInfoManager::instance() {
@@ -53,7 +53,7 @@ void NetInfoManager::load_netinfo() {
   char buffer[8192];
   int len = 0;
   map<int, NetInfo> interface_map;
-  send_netlink_request(sock, RTM_GETLINK, NLM_F_DUMP);
+  send_netlink_request(sock, RTM_GETLINK);
   while ((len = recv(sock, buffer, sizeof(buffer), 0)) > 0) {
     for (nlmsghdr *nh = (nlmsghdr*)buffer; NLMSG_OK(nh, len); nh = NLMSG_NEXT(nh, len)) {
       if (nh->nlmsg_type == NLMSG_DONE)
@@ -75,7 +75,7 @@ void NetInfoManager::load_netinfo() {
       }
     }
   }
-  send_netlink_request(sock, RTM_GETADDR, NLM_F_DUMP);
+  send_netlink_request(sock, RTM_GETADDR);
   while ((len = recv(sock, buffer, sizeof(buffer), 0)) > 0) {
     for (nlmsghdr *nh = (nlmsghdr*)buffer; NLMSG_OK(nh, len); nh = NLMSG_NEXT(nh, len)) {
       if (nh->nlmsg_type == NLMSG_DONE)
@@ -115,7 +115,7 @@ void NetInfoManager::load_routeinfo() {
 
   char buffer[8192];
   int len = 0;
-  send_netlink_request(sock, RTM_GETROUTE, NLM_F_DUMP);
+  send_netlink_request(sock, RTM_GETROUTE);
   while ((len = recv(sock, buffer, sizeof(buffer), 0)) > 0) {
     for (nlmsghdr *nh = (nlmsghdr*)buffer; NLMSG_OK(nh, len); nh = NLMSG_NEXT(nh, len)) {
       if (nh->nlmsg_type == NLMSG_DONE)
@@ -176,6 +176,20 @@ const NetInfo *NetInfoManager::get_netinfo(string name) {
   return &netinfo->second;
 }
 
+const IPv4Addr * NetInfoManager::get_gateway_ip(string name) {
+  IPv4Addr *gateway_ip = nullptr;
+  if (name.empty())
+    return gateway_ip;
+
+  for (auto &route : routes) {
+      if (route.name == name && route.gateway != 0) {
+        gateway_ip = &route.gateway;
+        break;
+      }
+  }
+  return gateway_ip;
+}
+
 const RouteInfo *NetInfoManager::get_best_routeinfo(IPv4Addr destination) {
   const RouteInfo *best_route = nullptr;
   int longest_prefix = -1;
@@ -193,13 +207,6 @@ const RouteInfo *NetInfoManager::get_best_routeinfo(IPv4Addr destination) {
       }
     }
   }
-
-  if (best_route == nullptr || best_route->gateway == 0) {
-    const RouteInfo *default_route = get_default_routeinfo();
-    if (default_route)
-      best_route = default_route;
-  }
-
   return best_route;
 }
 

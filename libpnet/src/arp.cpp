@@ -88,8 +88,7 @@ MACAddr ARP::get_mac_addr(IPv4Addr ip_addr, int timeout) {
       throw runtime_error("ARP request timed out.");
     }
 
-    auto n = recvfrom(sock, &reply, sizeof(reply), 0, NULL, NULL);
-    if (n < 0) {
+    auto n = recvfrom(sock, &reply, sizeof(reply), 0, NULL, NULL); if (n < 0) {
       if (errno == EWOULDBLOCK || errno == EAGAIN)
         continue;
       close(sock);
@@ -109,17 +108,13 @@ MACAddr ARP::get_mac_addr(IPv4Addr ip_addr, int timeout) {
   return mac_addr;
 }
 
-NetInfo ARP::get_gateway_info(IPv4Addr ip_addr) {
+NetInfo ARP::get_gateway_info(string if_name) {
   NetInfo netinfo;
-  auto route_info = NetInfoManager::instance().get_best_routeinfo(ip_addr);
-  if (route_info == nullptr)
-    throw invalid_argument("Failed to get route to the IP address.");
-  auto if_info = NetInfoManager::instance().get_netinfo(route_info->name);
-  if (if_info == nullptr)
-    throw runtime_error("Failed to get interface information.");
-  netinfo.ip = route_info->gateway;
-  netinfo.mac = ARP::get_mac_addr(route_info->gateway);
-  netinfo.mask = if_info->mask;
+  auto gateway_ip = NetInfoManager::instance().get_gateway_ip(if_name);
+  if (gateway_ip == nullptr)
+    throw invalid_argument("Failed to get gateway IP address.");
+  netinfo.ip = *gateway_ip;
+  netinfo.mac = ARP::get_mac_addr(*gateway_ip);
   return netinfo;
 }
 

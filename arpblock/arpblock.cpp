@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     MACAddr target_mac = ARP::get_mac_addr(target_ip);
-    NetInfo gateway_info = ARP::get_gateway_info(target_ip);
+    NetInfo gateway_info = ARP::get_gateway_info(route_info->name);
     IPv4Addr fake_ip = gateway_info.ip;
 
     sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));

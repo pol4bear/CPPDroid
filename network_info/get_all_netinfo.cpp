@@ -19,6 +19,11 @@ int main() {
       (string)route.gateway << ", " << (uint32_t)route.metric << endl;
   }
 
+  cout << endl << "---------- Gateway IP of wlan0 ----------" << endl;
+  auto gateway_ip = NetInfoManager::instance().get_gateway_ip("wlan0");
+  if (gateway_ip != nullptr)
+    cout << (string)*gateway_ip << endl;
+
   cout << endl << "---------- Best Route to 8.8.8.8 ----------" << endl;
   auto best_route = NetInfoManager::instance().get_best_routeinfo();
   if (best_route != nullptr)
